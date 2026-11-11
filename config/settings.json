@@ -1,0 +1,40 @@
+{
+  "app_name": "Kibuo",
+  "version": "1.0.0",
+  "author": "Kibuo Security Engineering",
+  "license": "MIT",
+  "authorization_notice_accepted": true,
+  "safe_mode": true,
+  "default_interface": "auto",
+  "scan_timeout_seconds": 600,
+  "default_timing_template": "T4",
+  "reports_dir": "reports",
+  "logs_dir": "logs",
+  "ip_api_url": "http://ip-api.com/json/{target}?fields=status,message,country,countryCode,region,regionName,city,zip,lat,lon,timezone,isp,org,as,query",
+  "web_ports": [
+    80,
+    443,
+    8000,
+    8080,
+    8443,
+    8888,
+    3000,
+    5000,
+    9000,
+    9443
+  ],
+  "smb_ports": [
+    139,
+    445
+  ],
+  "color_palette": {
+    "brand": "bright_yellow",
+    "brand_secondary": "dark_orange",
+    "info": "cyan",
+    "success": "bright_green",
+    "warning": "yellow",
+    "error": "bright_red",
+    "dim": "bright_black",
+    "text": "white"
+  }
+}
