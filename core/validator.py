@@ -221,3 +221,43 @@ def is_private_ip(ip_str: str) -> bool:
         return ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved
     except Exception:
         return False
+
+
+def is_private_subnet(cidr_str: str) -> bool:
+    """
+    Determine if an IPv4 CIDR network range belongs to a private RFC 1918,
+    loopback, or link-local range.
+    """
+    try:
+        net = ipaddress.IPv4Network(cidr_str.strip(), strict=False)
+        return net.is_private or net.is_loopback or net.is_link_local or net.is_reserved
+    except Exception:
+        return False
+
+
+MAC_REGEX = re.compile(r"^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$")
+
+
+def validate_mac_address(mac_str: str) -> str:
+    """
+    Validate and normalize a MAC address string.
+    Returns normalized uppercase MAC with colons (e.g. '00:11:22:33:44:55').
+    """
+    if not mac_str or not isinstance(mac_str, str):
+        raise ValidationError("MAC address cannot be empty.")
+    
+    cleaned = mac_str.strip()
+    if contains_dangerous_characters(cleaned):
+        raise ValidationError(f"Invalid characters detected in MAC address: '{cleaned}'")
+        
+    # Support 12 hex chars without separators
+    raw_hex = re.sub(r"[:-]", "", cleaned)
+    if len(raw_hex) == 12 and all(c in "0123456789abcdefABCDEF" for c in raw_hex):
+        formatted = ":".join(raw_hex[i:i+2].upper() for i in range(0, 12, 2))
+        return formatted
+        
+    if not MAC_REGEX.match(cleaned):
+        raise ValidationError(f"Invalid MAC address format: '{cleaned}'. Expected XX:XX:XX:XX:XX:XX")
+        
+    return cleaned.upper().replace("-", ":")
+

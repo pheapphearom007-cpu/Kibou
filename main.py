@@ -30,6 +30,7 @@ from core.ui import (
 )
 from modules.dns_whois import run_dns_whois_module
 from modules.exploit_lookup import run_exploit_lookup_module
+from modules.fing_suite import run_fing_suite_menu
 from modules.ip_intelligence import run_ip_intelligence_module
 from modules.network_discovery import run_arp_discovery_module, run_live_host_discovery_module
 from modules.nmap_scanner import (
@@ -63,6 +64,7 @@ MENU_OPTIONS: List[Tuple[str, str]] = [
     ("[12]", "Exploit Lookup"),
     ("[13]", "SMB Discovery"),
     ("[14]", "Full Recon Pipeline"),
+    ("[15]", "Network Discovery & Monitoring"),
     ("[99]", "About"),
     ("[00]", "Exit"),
 ]
@@ -165,8 +167,8 @@ def main():
             console.print()
 
             choice = Prompt.ask(
-                f"[bold {COLOR_BRAND}]Kibuo ❯ Select an option [00-14, 99][/bold {COLOR_BRAND}]",
-                default="14"
+                f"[bold {COLOR_BRAND}]Kibuo ❯ Select an option [00-15, 99][/bold {COLOR_BRAND}]",
+                default="15"
             ).strip().lower()
 
             # Normalize single digits: '1' -> '01', '2' -> '02', etc.
@@ -250,7 +252,11 @@ def main():
                 run_recon_pipeline_module()
                 pause_prompt()
 
-            elif choice in ("deps", "dep", "dependencies", "15"):
+            elif choice == "15" or choice in ("nd", "fing", "monitor", "monitoring", "discovery"):
+                clear_screen()
+                run_fing_suite_menu()
+
+            elif choice in ("deps", "dep", "dependencies"):
                 clear_screen()
                 DependencyManager.run_interactive_installer()
                 pause_prompt()
@@ -263,7 +269,7 @@ def main():
                 display_about()
 
             else:
-                display_warning(f"Invalid selection: '{choice}'. Enter a valid option between [00] and [14], or [99].")
+                display_warning(f"Invalid selection: '{choice}'. Enter a valid option between [00] and [15], or [99].")
                 time_sleep = Prompt.ask("[dim]Press Enter to continue...[/dim]", default="")
 
         except KeyboardInterrupt:

@@ -76,7 +76,7 @@ if command -v $PIP_CMD >/dev/null 2>&1; then
 else
     echo -e "${YELLOW}[!] pip was not found. Attempting to run via system python3 -m pip...${NC}"
     python3 -m pip install -r requirements.txt || {
-        echo -e "${YELLOW}[!] Ensure 'rich' and 'requests' are installed.${NC}"
+        echo -e "${YELLOW}[!] Ensure 'rich', 'requests', and 'psutil' are installed.${NC}"
     }
 fi
 
@@ -98,7 +98,7 @@ done
 if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     echo -e "\n${YELLOW}[!] The following tools are missing: ${MISSING_TOOLS[*]}${NC}"
     echo -e "${CYAN}To install recommended tools on Debian/Ubuntu/Kali:${NC}"
-    echo -e "  ${GREEN}sudo apt update && sudo apt install -y nmap curl whois dnsutils traceroute arp-scan whatweb exploitdb nikto enum4linux${NC}"
+    echo -e "  ${GREEN}sudo apt update && sudo apt install -y nmap curl whois dnsutils traceroute arp-scan whatweb exploitdb nikto enum4linux iproute2 python3-psutil${NC}"
 else
     echo -e "\n${GREEN}[✔] All core reconnaissance tools are detected and available.${NC}"
 fi

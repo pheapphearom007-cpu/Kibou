@@ -15,7 +15,7 @@
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)]()
 [![UI](https://img.shields.io/badge/UI-Rich%20Terminal-yellow.svg)]()
 [![License](https://img.shields.io/badge/License-MIT%20with%20Ethical%20Clause-green.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-33%20Passing-brightgreen.svg)]()
+[![Tests](https://img.shields.io/badge/Tests-46%20Passing-brightgreen.svg)]()
 
 **Kibuo** is an advanced, modular cybersecurity reconnaissance and auditing toolkit built for authorized penetration testing, security auditing, asset discovery, and educational cybersecurity laboratories.
 
@@ -44,17 +44,20 @@ Kibuo adopts a decoupled, modular architecture cleanly separating terminal UI pr
 ```text
 kibuo/
 ├── main.py                     # Interactive CLI entrypoint & menu dispatcher
-├── requirements.txt            # Python dependencies (Rich, Requests)
+├── requirements.txt            # Python dependencies (Rich, Requests, Psutil)
 ├── install.sh                  # Automated environment setup script
 ├── run.sh                      # Environment launcher
 ├── README.md                   # System documentation
 ├── LICENSE                     # MIT License + Ethical Use Clause
 ├── config/
 │   └── settings.json           # Application settings & color palette
+├── data/
+│   └── mac_vendors/
+│       └── oui_database.json   # 600+ curated IEEE OUI hardware manufacturer records
 ├── core/
 │   ├── __init__.py
 │   ├── ui.py                   # Rich terminal branding, menus, cards & spinners
-│   ├── validator.py            # Strict IP, CIDR, domain, and injection sanitization
+│   ├── validator.py            # Strict IP, CIDR, domain, MAC & injection sanitization
 │   ├── subprocess_manager.py   # Safe command execution (shell=False, timeouts)
 │   ├── permission_manager.py   # Root detection & least-privilege guidance
 │   ├── dependency_manager.py   # Distribution detection & apt package installer
@@ -62,6 +65,17 @@ kibuo/
 │   └── report_generator.py     # Session manager, JSON & TXT report exporter
 ├── modules/
 │   ├── __init__.py
+│   ├── fing_suite.py           # Module [15]: Fing-inspired Network Discovery & Monitoring
+│   ├── device_discovery.py     # Device discovery (IP, MAC, vendor, hostname, status)
+│   ├── network_scanner.py      # Subnet scanner with Nmap & multi-threaded socket engine
+│   ├── ip_information.py       # Local IP, IPv6, Gateway, DNS, DHCP & consented Public IP
+│   ├── mac_lookup.py           # Offline OUI vendor resolution & Layer 2 boundary guide
+│   ├── device_identification.py# Heuristic categorization (Smartphone, Laptop, Router, etc.)
+│   ├── device_monitor.py       # Live connection state transition tracker (Online/Offline)
+│   ├── speed_test.py           # Consented Internet speed test (Download, Upload, Latency, Jitter)
+│   ├── security_check.py       # Defensive security auditor (duplicate IPs, cleartext ports)
+│   ├── network_dashboard.py    # Consolidated network telemetry & asset overview dashboard
+│   ├── report_export.py        # Structured multi-format report exporter (TXT, JSON, CSV)
 │   ├── network_discovery.py    # Modules [01] & [02]: ARP & Live Host discovery
 │   ├── nmap_scanner.py         # Modules [03]-[07]: Port scans, OS & Vuln assessment
 │   ├── ip_intelligence.py      # Module [08]: Public IP & ASN intelligence
@@ -72,42 +86,34 @@ kibuo/
 │   ├── smb_recon.py            # Module [13]: SMB dialect & security audit
 │   └── recon_pipeline.py       # Module [14]: Automated end-to-end recon pipeline
 ├── logs/                       # Timestamped raw tool outputs and metadata
-├── reports/                    # Consolidated JSON and TXT executive reports
-└── tests/                      # Comprehensive unit test suite (26 passing tests)
+├── reports/                    # Consolidated JSON, TXT, CSV, and HTML reports
+└── tests/                      # Comprehensive unit test suite (46 passing tests)
     ├── __init__.py
     ├── test_validator.py
     ├── test_subprocess_manager.py
     ├── test_xml_parser.py
     ├── test_report_generator.py
     ├── test_dependencies.py
-    └── test_logger.py
+    ├── test_logger.py
+    ├── test_qa_suite.py
+    └── test_fing_suite.py
 ```
 
 ---
 
 ## Core Modules & Capabilities
 
-Kibuo implements **14 functional reconnaissance modules** accessible from an interactive, responsive two-column terminal dashboard:
+Kibuo implements **15 functional reconnaissance modules** accessible from an interactive, responsive two-column terminal dashboard:
 
 ```text
-╔══════════════════════════════════════════════════════════════════╗
-║     ██╗  ██╗██╗██████╗ ██╗   ██╗ ██████╗                         ║
-║     ██║ ██╔╝██║██╔══██╗██║   ██║██╔═══██╗                        ║
-║     █████═╝ ██║██████╔╝██║   ██║██║   ██║                        ║
-║     ██╔═██╗ ██║██╔══██╗██║   ██║██║   ██║                        ║
-║     ██║ ╚██╗██║██████╔╝╚██████╔╝╚██████╔╝                        ║
-║     ╚═╝  ╚═╝╚═╝╚═════╝  ╚═════╝  ╚═════╝                         ║
-║              NETWORK RECONNAISSANCE TOOLKIT                      ║
-║                       Version 1.0.0                              ║
-╚══════════════════════════════════════════════════════════════════╝
-
-[01] ARP Network Discovery       [08] IP Intelligence
-[02] Live Host Discovery        [09] Whois & DNS
-[03] Quick Port Scan            [10] Traceroute
-[04] Full Port Scan             [11] Web Recon
-[05] OS Detection               [12] Exploit Lookup
-[06] SYN Scan                   [13] SMB Discovery
-[07] Vulnerability Assessment   [14] Full Recon Pipeline
+[01] ARP Network Discovery       [09] Whois & DNS
+[02] Live Host Discovery        [10] Traceroute
+[03] Quick Port Scan            [11] Web Recon
+[04] Full Port Scan             [12] Exploit Lookup
+[05] OS Detection               [13] SMB Discovery
+[06] SYN Scan                   [14] Full Recon Pipeline
+[07] Vulnerability Assessment   [15] Network Discovery & Monitoring (Fing Suite)
+[08] IP Intelligence
 
 [99] About                     [00] Exit
 ```
@@ -130,6 +136,42 @@ Kibuo implements **14 functional reconnaissance modules** accessible from an int
 | **[12]** | **Public Exploit Intelligence**| `searchsploit` | Queries the Exploit-DB archive for service version references. **Strictly informational; does not execute exploits.** |
 | **[13]** | **SMB Discovery & Audit** | `nmap`, `enum4linux` | Audits ports 139/445, checks SMBv1/v2/v3 support, evaluates message signing enforcement, and tests guest access. |
 | **[14]** | **Full Recon Pipeline** | Consolidated Workflow | Automated, sequential execution of target validation, IP intelligence, DNS, host discovery, service scan, web recon, SMB audit, and exploit lookup. |
+| **[15]** | **Network Discovery & Monitoring** | Fing Suite (`psutil`, `socket`, `nmap`) | Advanced 10-feature Fing-inspired local network discovery, live device monitoring, heuristic categorization, speed testing, and defensive auditing. |
+
+---
+
+## Network Discovery & Monitoring (Fing-Inspired Suite)
+
+Module **[15]** provides a complete Linux terminal experience inspired by the popular Fing mobile/desktop network utility. It features an interactive submenu with in-memory session synchronization:
+
+```text
+[ Network Discovery & Monitoring ]
+
+1. Device Discovery         — Identify active devices, MACs, vendors & hostnames on subnet
+2. Network Scanner          — Scan authorized local subnet with Nmap or socket engine
+3. IP Address Information   — Audit local IP, IPv6, gateway, DNS & DHCP configuration
+4. MAC Address Information  — IEEE OUI vendor lookup, local MAC search & Layer 2 guide
+5. Device Identification    — Multi-factor heuristic categorization with confidence levels
+6. Live Device Monitoring   — Track device status changes, online/offline events & last seen
+7. Internet Speed Test      — Measure download/upload throughput (Mbps), latency & jitter
+8. Network Security Check   — Audit unfamiliar devices, duplicate IPs & risky cleartext services
+9. Network Information      — Single-screen consolidated telemetry & asset inventory dashboard
+10. Export Network Report   — Export discovery findings to structured TXT, JSON, and CSV
+11. Back to Main Menu       — Return to primary Kibuo reconnaissance menu
+```
+
+### Key Submodule Capabilities
+
+- **Device Discovery**: Multi-tier active device discovery utilizing privileged ARP sweeps, kernel neighbor table caching (`/proc/net/arp`), concurrent TCP/ICMP sweeps, and reverse DNS hostname resolution. Produces clean `IP ADDRESS | MAC ADDRESS | HOSTNAME | VENDOR | STATUS` tables.
+- **Network Scanner**: Detects local interface, IP, and CIDR subnet automatically. Enforces RFC 1918 private network safeguards to prevent accidental scanning of public external subnets.
+- **IP Address Information**: Inspects local IPv4, IPv6, default gateway, subnet masks, DNS upstream resolvers, interface MTU, and DHCP lease sources. Queries public IP routing **strictly upon explicit user request**.
+- **MAC Address Information**: Offline IEEE OUI database matching against 600+ curated manufacturers. Detects IEEE Locally Administered / Randomized MAC addresses (used by modern iOS, Android, and Windows privacy features).
+- **Device Identification Engine**: Multi-factor heuristic classifier supporting **9 device categories**: `Smartphone`, `Laptop`, `Desktop Computer`, `Router`, `Network Printer`, `Smart TV`, `IoT Device`, `Server`, and `Unknown Device`. Displays explicit confidence ratings (`High`, `Medium`, `Low`) without falsely claiming certainty on ambiguous evidence.
+- **Live Device Monitoring**: Real-time state watcher detecting device connection transitions (`[+] Device Online: <ip>`, `[-] Device Offline: <ip>`, `[*] Last Seen: <time>`). Implements graceful `Ctrl+C` interrupt handling and rate-limited non-flooding probes.
+- **Internet Speed Test**: Consented throughput measurement in standard **Mbps** (download and upload), average round-trip ping latency (ms), and jitter calculation. Never transmits data without user authorization.
+- **Defensive Network Security Check**: Audits for duplicate IP collisions (ARP conflict/spoofing), flags unfamiliar devices with defensive verification guidance (no false attacker labeling), and checks for exposed cleartext services (Telnet 23, FTP 21, SMB 445, VNC 5900, Redis 6379).
+- **Network Information Dashboard**: Single-screen executive telemetry dashboard with gateway MAC/vendor, DNS resolvers, active asset counts, and uplink latency.
+- **Multi-Format Export**: One-key export to structured `reports/` in **TXT**, **JSON**, and spreadsheet-ready **CSV**.
 
 ---
 
